@@ -5,7 +5,19 @@ function createRows() {
     global $connection;
     $username = $_POST['username'];
     $password = $_POST['password'];
+
+    $username = mysqli_real_escape_string($connection, $username);
+    $password = mysqli_real_escape_string($connection, $password);
     
+    // used to encript password
+    $hashformat = "$2y$10$";
+    $salt = "iusesomecrazystrings22";
+    $hashF_and_salt = $hashformat . $salt;
+
+    // encripted password
+    $password = crypt($password, $hashF_and_salt);
+
+
     $query = "INSERT INTO users(username,password)";
     $query .= "VALUES ('$username', '$password')";
   
@@ -17,6 +29,23 @@ function createRows() {
       echo "Record Created";
     }
   } 
+}
+
+function readRows() {
+  global $connection;
+  $query = "SELECT * FROM users";
+  $result = mysqli_query($connection, $query);
+
+  if(!$result) {
+    die("Query Failed" .mysqli_error());
+  }
+  while($row = mysqli_fetch_assoc($result)) {
+  ?> 
+  <ul>
+    <li><?php echo "Username: " . $row['username'] . "<br>" . "Encrypted Password: ". $row['password'] ?></li>
+  </ul>
+  <?php
+  }
 }
 
 function showAllData() {
